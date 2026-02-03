@@ -8,4 +8,5 @@ dependencies = [
     "langchain-core>=1.2.8",
     "langchain-google-genai>=4.2.0",
     "langgraph>=1.0.7",
+    "pydantic>=2.12.5",
 ]

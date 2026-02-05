@@ -7,6 +7,8 @@ from langgraph.types import Command
 from langgraph.checkpoint.memory import MemorySaver
 from langchain.agents import AgentState
 from langchain_core.messages import ToolMessage
+import operator
+from typing import Annotated
 
 
 checkpointer = MemorySaver()
@@ -14,7 +16,7 @@ checkpointer = MemorySaver()
 
 class CustomState(AgentState):
     user_preferences: dict
-    number_of_tool_calls: int
+    number_of_tool_calls: Annotated[int, operator.add]
 
 
 @tool
@@ -31,7 +33,9 @@ def search_database(query: str, runtime: ToolRuntime) -> Command:
         update={
             "messages": [tool_message],
             "number_of_tool_calls": runtime.state["number_of_tool_calls"] + 1,
+            #"number_of_tool_calls": 2,
         }
+
     )
 
 
@@ -48,7 +52,7 @@ agent = create_agent(
             }
         )
     ],
-    system_prompt="",
+    system_prompt="Make sure to call the search_database tool at least 3 times before answering the question.",
     response_format=None,
     checkpointer=checkpointer,
     state_schema=CustomState,
@@ -65,6 +69,6 @@ response = agent.invoke(
 )
 print(response)
 
-response = agent.invoke(Command(resume={"decisions": [{"type": "approve"}]}), config=config)
+response = agent.invoke(Command(resume={"decisions": [{"type": "approve"}, {"type": "approve"}, {"type": "approve"}]}), config=config)
+#response = agent.invoke(Command(resume={"decisions": [{"type": "approve"}]}), config=config)
 print(response)
-

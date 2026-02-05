@@ -1,5 +1,6 @@
 from langchain.agents import create_agent
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
 from langchain.tools import tool
 from langchain.agents.middleware import HumanInTheLoopMiddleware
 from langgraph.types import Command
@@ -21,7 +22,8 @@ def search_database(query: str) -> dict:
     return {"value": "answer to my question is Honduras"}
 
 
-llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-lite", temperature=0.0)
+#llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-lite", temperature=0.0)
+llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.0)
 
 agent = create_agent(
     model=llm,

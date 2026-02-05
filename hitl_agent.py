@@ -1,11 +1,12 @@
 from langchain.agents import create_agent
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import ChatOpenAI
-from langchain.tools import tool
+from langchain.tools import tool, ToolRuntime
 from langchain.agents.middleware import HumanInTheLoopMiddleware
 from langgraph.types import Command
 from langgraph.checkpoint.memory import MemorySaver
 from langchain.agents import AgentState
+from langchain_core.messages import ToolMessage
 
 
 checkpointer = MemorySaver()
@@ -17,9 +18,21 @@ class CustomState(AgentState):
 
 
 @tool
-def search_database(query: str) -> dict:
+def search_database(query: str, runtime: ToolRuntime) -> Command:
     """Searches the database"""
-    return {"value": "answer to my question is Honduras"}
+    print("#" * 20)
+    print(runtime.state)
+    print("#" * 20)
+    tool_message = ToolMessage(
+        content="answer to my question is Honduras",
+        tool_call_id=runtime.tool_call_id,
+    )
+    return Command(
+        update={
+            "messages": [tool_message],
+            "number_of_tool_calls": runtime.state["number_of_tool_calls"] + 1,
+        }
+    )
 
 
 #llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-lite", temperature=0.0)
@@ -52,5 +65,6 @@ response = agent.invoke(
 )
 print(response)
 
-response = agent.invoke(Command(resume="approve"), config=config)
+response = agent.invoke(Command(resume={"decisions": [{"type": "approve"}]}), config=config)
 print(response)
+

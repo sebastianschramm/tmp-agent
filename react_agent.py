@@ -19,6 +19,10 @@ agent = create_agent(model, tools)
 response = agent.invoke({"messages": [HumanMessage("How many orders are in the db?")]})
 
 
+image_data = agent.get_graph().draw_mermaid_png()
+with open("react_graph.png", "wb") as f:
+    f.write(image_data) 
+
 print(response)
 print()
 print(response["messages"][-1])
